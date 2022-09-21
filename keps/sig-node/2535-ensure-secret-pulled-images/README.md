@@ -59,7 +59,6 @@ Items marked with (R) are required *prior to targeting to a milestone / release*
 [kubernetes/kubernetes]: https://git.k8s.io/kubernetes
 [kubernetes/website]: https://git.k8s.io/website
 
-
 ## Summary
 
 We will add support in kubelet for the pullIfNotPresent image pull policy, for
@@ -132,22 +131,23 @@ use un-encrypted...
 
 ## Proposal
 
-For alpha `kubelet` will keep a list, since boot, of container images that required
-authentication and a list of the authentications that successfully pulled the image.
-For beta the list will be persisted across reboot of host, and restart of kubelet.
-Additionally, an API will be considered to manage the ensure metadata.
+For alpha `kubelet` will keep a list, across reboots of host and restart of
+kubelet, of container images that required authentication and a list of the
+authentications that successfully pulled the image.
+For beta an API will be considered to manage the ensure metadata.
 
 `kubelet` will ensure any image in the list is always pulled if an authentication
 used is not present, thus enforcing authentication / re-authentication.
 
-
 ### User Stories
 
 #### Story 1
+
 User with multiple tenants will be able to support all image pull policies without
 concern that one tenant will gain access to an image that they don't have rights to.
 
 #### Story 2
+
 User will will no longer have to inject the Pull Always Image Pull Policy to
 ensure all tenants have rights to the images that are already present on a host.
 
@@ -170,17 +170,15 @@ Since images can be pre-loaded, loaded outside the `kubelet` process, and
 garbage collected.. the list of images that required authentication in `kubelet`
 will not be a source of truth for how all images were pulled that are in the
 container runtime cache. To mitigate, images can be garbage collected at boot.
-And for beta, we will persist ensure metadata across reboot of host, and restart
+And we will persist ensure metadata across reboot of host, and restart
 of kubelet, and possibly look at a way to add ensure metadata for images loaded
 outside of kubelet. In beta we will add a switch to enable re-auth on boot for
 admins seeking that instead of having to garbage collect where they do not use
 or expect preloaded images since boot.
 
-
 ## Design Details
 
-Kubelet will track, in memory, a hash map for the credentials that were successfully used to pull an image. The hash map
-will not be persisted to disk, in alpha. For alpha explicitly, we will not reuse or add other state manager concepts to kubelet.
+Kubelet will track, in memory, a hash map for the credentials that were successfully used to pull an image. It has been decided that the hash map will be persisted to disk, in alpha.
 
 See PR for detailed design / behavior documentation.
 
@@ -213,6 +211,8 @@ For alpha, exhaustive Kubelet unit tests will be provided. Functions affected by
  	}
 ```
 [TestShouldPullImage link](https://github.com/kubernetes/kubernetes/pull/94899/files#diff-7297f08c72da9bf6479e80c03b45e24ea92ccb11c0031549e51b51f88a91f813R311-R438)
+
+PersistHashMeta()
 
 At beta we should revisit if integration buckets are warranted for e2e node and/or cri-tools/critest, and after gathering feedback.
 
