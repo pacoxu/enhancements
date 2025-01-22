@@ -270,6 +270,7 @@ For the cmd/kube-apiserver binary, we plan to enforce this order by adding a new
 filter to the [handler chain]. Before kube-aggregator, kube-apiserver, and
 apiextension-apiserver have registered the storage version of the built-in
 resources they host, this filter only allows the following requests to pass:
+
 1. a request sent by the loopbackClient and is destined to the storageVersion
    API.
 2. the verb of the request is GET.
